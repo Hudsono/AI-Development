@@ -43,7 +43,7 @@ void FollowerBehaviour::Update(Agent* agent, float deltaTime)
 
 void SelectorBehaviour::Update(Agent* agent, float deltaTime)
 {
-    if (Vector2Distance(agent->GetPos(), agent->GetTarget()->GetPos()) <= agent->GetNodeMap()->CellSize() * 5)
+    if (Vector2Distance(agent->GetPos(), agent->GetTarget()->GetPos()) <= agent->GetNodeMap()->CellSize() * 100)
     {
         SetBehaviour(m_b1, agent);
         agent->SetColour(RED);

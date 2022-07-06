@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
 
     // Pac-Man node graph.
     asciiMap.push_back("||||||||||||||||||||||||||||||");
-    asciiMap.push_back("||............||............||");
+    asciiMap.push_back("||b...........||............||");
     asciiMap.push_back("||.||||.|||||.||.|||||.||||.||");
     asciiMap.push_back("||.||||.|||||.||.|||||.||||.||");
     asciiMap.push_back("||.||||.|||||.||.|||||.||||.||");
@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
     asciiMap.push_back("||......||....||....||......||");
     asciiMap.push_back("||.||||||||||.||.||||||||||.||");
     asciiMap.push_back("||.||||||||||.||.||||||||||.||");
-    asciiMap.push_back("||..........................||");
+    asciiMap.push_back("||.........................b||");
     asciiMap.push_back("||||||||||||||||||||||||||||||");
     
     // Small example node graph.
@@ -226,8 +226,8 @@ int main(int argc, char* argv[])
         //agent3.Update(GetFrameTime());
 
         agent1.Update(GetFrameTime());
-        agent2.Update(GetFrameTime());
-        agent3.Update(GetFrameTime());
+        //agent2.Update(GetFrameTime());
+        //agent3.Update(GetFrameTime());
 
         // Draw
         //----------------------------------------------------------------------------------

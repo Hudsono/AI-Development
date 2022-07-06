@@ -42,6 +42,8 @@ struct Node
 
 	void ConnectTo(Node* other, float cost) { connections.push_back(Edge(other, cost)); }
 
+	char teleChar = 0;	// If this node is a teleport point, record the character used for matching teleport points.
+
 	// A* implementation
 	int fScore;	// Final score -- G + H score.
 	int hScore; // Heuristic score

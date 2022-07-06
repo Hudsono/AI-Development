@@ -1,4 +1,5 @@
 #include "Pathfinding.h"
+#include <unordered_map>	// For recording teleport points.
 
 // Declare static members to keep the linker happy
 //std::vector<Node*> NodeMap::DijkstraSearch(Node* startNode, Node* endNode);
@@ -15,6 +16,11 @@ void NodeMap::Initialise(std::vector<std::string> asciiMap, int cellSize, Diagon
 	m_width = asciiMap[0].size();
 
 	m_nodes = new Node * [m_width * m_height];
+
+	// Hash map of matching teleport points denoted by matching ASCII characters
+	// Each char has a vector of nodes at x,y positions in the ASCII map.
+	// Matching ASCII characters have their coordinates added together and later connected.
+	std::unordered_map<char, std::vector<Vector2>> teleportPoints;
 
 	// Loop over the strings, creating Node entries as we go
 	for (int y = 0; y < m_height; y++)
@@ -33,7 +39,26 @@ void NodeMap::Initialise(std::vector<std::string> asciiMap, int cellSize, Diagon
 			// Create a node for anything but a "|" character
 			m_nodes[x + m_width * y] = tile == wallSquare ? nullptr : new Node(x, y);
 			
-			
+			// For a candidate node that isn't just '.', it is treated as a teleport point.
+			if (m_nodes[x + m_width * y] != nullptr && tile != availNode)
+			{
+				// First, find if this char exists in the list of teleport points as a key.
+				std::unordered_map<char, std::vector<Vector2>>::iterator teleSearch = teleportPoints.find(tile);
+				Vector2 tempPos = { x, y };
+
+				if (teleSearch != teleportPoints.end())
+				{
+					// This char exists as a key--add the teleport x,y to its vector.
+					teleSearch->second.push_back(tempPos);
+				}
+				else
+				{
+					// This char does not yet exists as a key--add the key and the x,y point.
+					teleportPoints.insert(std::pair<char, std::vector<Vector2>> { tile, { {tempPos} } });
+				}
+
+				m_nodes[x + m_width * y]->teleChar = tile;	// Set this node's teleport tile.
+			}
 		}
 	}
 
@@ -103,6 +128,21 @@ void NodeMap::Initialise(std::vector<std::string> asciiMap, int cellSize, Diagon
 	// Pac-Man warps...
 	//GetNode(0, 14)->ConnectTo(GetNode(m_width - 1, 14), 1);
 	//GetNode(m_width - 1, 14)->ConnectTo(GetNode(0, 14), 1);
+
+	for (std::pair<char, std::vector<Vector2>> mapPair : teleportPoints)
+	{
+		for (int i = 0; i < mapPair.second.size(); i++)
+		{
+			Node* teleNode1 = GetNode(mapPair.second[i].x, mapPair.second[i].y);
+
+			for (int j = i; j < mapPair.second.size(); j++)
+			{
+				Node* teleNode2 = GetNode(mapPair.second[j].x, mapPair.second[j].y);
+				teleNode1->ConnectTo(teleNode2, -1);
+				teleNode2->ConnectTo(teleNode1, -1);
+			}
+		}
+	}
 }
 
 void NodeMap::Draw()
@@ -540,9 +580,22 @@ void PathAgent::Update(float deltaTime)
 				// No, there is another.
 				// Compensate for overshot-ness by using it for the next node...
 				
+
+						// If we're on a teleport point destined for another teleport point (costs are -1), instantly teleport and don't bother moving.
+				if (!m_path.empty() && m_currentIndex < m_path.size() - 1)
+				{
+					if (m_path[m_currentIndex]->teleChar != 0 && m_path[m_currentIndex]->teleChar == m_path[m_currentIndex]->parent->teleChar)
+					{
+						Vector2 telePos = m_nodeMap->NodeWPos(m_path[m_currentIndex]);
+						m_position.x = telePos.x + m_nodeMap->CellSize() / 2;
+						m_position.y = telePos.y + m_nodeMap->CellSize() / 2;
+					}
+				}
 			}
 
 		}
+
+
 
 		// Brain no work--simple solution for now
 
