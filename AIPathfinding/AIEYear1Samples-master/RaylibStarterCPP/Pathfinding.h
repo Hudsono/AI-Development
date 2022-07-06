@@ -86,8 +86,8 @@ public:
 	static Vector2 NodeWPos(Node* node);	// Node world position -- proportional to the m_cellsize and any offsets.
 	static float CellSize() { return m_cellSize; };	// Returns m_cellsize.
 
-	static float Heu_Manhatten(Node* targetNode, Node* endNode);	// Sum of absolute X and Y difference.
-	static float Heu_Euclidian(Node* targetNode, Node* endNode);	// Literal distance.
+	static float Heu_Manhattan(Node* targetNode, Node* endNode);	// Sum of absolute X and Y difference.
+	static float Heu_Euclidean(Node* targetNode, Node* endNode);	// Literal distance.
 	static float Heu_Bogo(Node* targetNode, Node* endNode);	// Random.
 };
 
@@ -97,8 +97,8 @@ public:
 	// Define enums publically first...
 	enum class Heuristics
 	{
-		Manhatten,
-		Euclidian,
+		Manhattan,
+		Euclidean,
 		Bogo
 	};
 
@@ -134,7 +134,7 @@ private:
 
 public:
 
-	PathAgent();	// Default constructor--assumes Euclidian heuristic.
+	PathAgent();	// Default constructor--assumes Euclidean heuristic.
 
 	// Constructor defining heuristic, assigned nodemap, the spawn position and the chosen search algorithm...
 	PathAgent(Algorithms algorithm, Heuristics heuristic, NodeMap* nodeMap, Vector2 position);

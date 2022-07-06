@@ -423,7 +423,7 @@ Vector2 NodeMap::NodeWPos(Node* node)
 	return wPos;
 }
 
-float NodeMap::Heu_Euclidian(Node* targetNode, Node* endNode)
+float NodeMap::Heu_Euclidean(Node* targetNode, Node* endNode)
 {
 	// Return the literal distance of the two given nodes. Square-root operation omitted for faster calculation--proportions compared will all be the same.
 	return (
@@ -445,7 +445,7 @@ float NodeMap::Heu_Bogo(Node* targetNode, Node* endNode)
 	return random;
 }
 
-float NodeMap::Heu_Manhatten(Node* targetNode, Node* endNode)
+float NodeMap::Heu_Manhattan(Node* targetNode, Node* endNode)
 {
 	// Accumilate absolute X and Y distances between the given nodes. 
 	return (
@@ -458,7 +458,7 @@ float NodeMap::Heu_Manhatten(Node* targetNode, Node* endNode)
 
 PathAgent::PathAgent()
 {
-	SetHeuristic(Heuristics::Euclidian);
+	SetHeuristic(Heuristics::Euclidean);
 }
 
 PathAgent::PathAgent(Algorithms algorithm, Heuristics heuristic, NodeMap* nodeMap, Vector2 position)
@@ -634,12 +634,12 @@ void PathAgent::SetHeuristic(Heuristics heuristic)
 {
 	switch (heuristic)
 	{
-	case Heuristics::Manhatten:
-		m_heuristic = &NodeMap::Heu_Manhatten;	// Set the agent's heuristic to Manhatten
+	case Heuristics::Manhattan:
+		m_heuristic = &NodeMap::Heu_Manhattan;	// Set the agent's heuristic to Manhattan
 		break;
 
-	case Heuristics::Euclidian:
-		m_heuristic = &NodeMap::Heu_Euclidian;	// Set the agent's heuristic to Euclidian
+	case Heuristics::Euclidean:
+		m_heuristic = &NodeMap::Heu_Euclidean;	// Set the agent's heuristic to Euclidean
 		break;
 
 	case Heuristics::Bogo:

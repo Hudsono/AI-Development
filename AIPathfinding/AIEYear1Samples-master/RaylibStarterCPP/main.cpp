@@ -155,11 +155,11 @@ int main(int argc, char* argv[])
     Node* start = nodeMap.GetNode(1, 1);
     Node* end = nodeMap.GetNode(1, 2);
 
-    // Create 3 path agents: #1 using Dijkstra, #2 using A* with a Euclidian heuristic, and #3 using A* with a Manhatten heuristic. 
+    // Create 3 path agents: #1 using Dijkstra, #2 using A* with a Euclidean heuristic, and #3 using A* with a Manhattan heuristic. 
     // We assign each to the node map we created, all spawned at the world position of the node at X, Y of 1, 1.
-    PathAgent agent1(PathAgent::Algorithms::Dijkstra, PathAgent::Heuristics::Euclidian, &nodeMap, { nodeMap.NodeWPos(1, 1)});    // Doesn't use heuristic.
-    PathAgent agent2(PathAgent::Algorithms::AStar, PathAgent::Heuristics::Euclidian, &nodeMap, { nodeMap.NodeWPos(1, 1)});
-    PathAgent agent3(PathAgent::Algorithms::AStar, PathAgent::Heuristics::Manhatten, &nodeMap, { nodeMap.NodeWPos(1, 1)});
+    PathAgent agent1(PathAgent::Algorithms::Dijkstra, PathAgent::Heuristics::Euclidean, &nodeMap, { nodeMap.NodeWPos(1, 1)});    // Doesn't use heuristic.
+    PathAgent agent2(PathAgent::Algorithms::AStar, PathAgent::Heuristics::Euclidean, &nodeMap, { nodeMap.NodeWPos(1, 1)});
+    PathAgent agent3(PathAgent::Algorithms::AStar, PathAgent::Heuristics::Manhattan, &nodeMap, { nodeMap.NodeWPos(1, 1)});
 
     // All agents have the same movement speed for fair comparison.
     agent1.SetSpeed(100);
@@ -182,7 +182,7 @@ int main(int argc, char* argv[])
 
             // Here, we tell each of the 3 agents to path find to the empty node closest to the mouse position.
             // We record the time taken to calculate each path, used to compare computation cost/complexity per algorithm/heuristic.
-            // Often, Dijkstra takes slightly longer than any A* implementation; however, Euclidian A* sometimes takes longer.
+            // Often, Dijkstra takes slightly longer than any A* implementation; however, Euclidean A* sometimes takes longer.
 
             double timeNow = GetTime(); // Start a timer right before calculating the path
             agent1.GoToPos(mousePos, false); // Tell agent1 to pathfind to the given end point (mouse position).
@@ -198,8 +198,8 @@ int main(int argc, char* argv[])
 
             // Print the length of the calculated path for each agent.
             std::cout << "\nPath length Dijkstra =\t\t " << agent1.GetPath().size() << std::endl;
-            std::cout << "Path length A* Manhatten =\t " << agent2.GetPath().size() << std::endl;
-            std::cout << "Path length A* Euclidian =\t " << agent3.GetPath().size() << std::endl;
+            std::cout << "Path length A* Manhattan =\t " << agent2.GetPath().size() << std::endl;
+            std::cout << "Path length A* Euclidean =\t " << agent3.GetPath().size() << std::endl;
         }
 
         // Update the agents so they move along their path, if given one. The delta time is the frame time.
@@ -244,10 +244,10 @@ int main(int argc, char* argv[])
         DrawText("Dijkstra", 310, GetScreenHeight() - 40, 20, YELLOW);
 
         DrawRectanglePro({ 430, (float)GetScreenHeight() - 42, 20, 20}, {0, 0}, 45, PINK);
-        DrawText("A* Euclidian", 450, GetScreenHeight() - 40, 20, PINK);
+        DrawText("A* Euclidean", 450, GetScreenHeight() - 40, 20, PINK);
         
         DrawRectangle(590, GetScreenHeight() - 40, 20, 20, DARKGREEN);
-        DrawText("A* Manhatten", 620, GetScreenHeight() - 40, 20, DARKGREEN);
+        DrawText("A* Manhattan", 620, GetScreenHeight() - 40, 20, DARKGREEN);
 
         EndDrawing();   // Display to window.
 
