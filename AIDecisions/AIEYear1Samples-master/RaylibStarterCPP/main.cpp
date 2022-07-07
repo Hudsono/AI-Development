@@ -31,6 +31,12 @@
 #include "Agent.h"
 #include "Behaviour.h"
 
+#include "FiniteStateMachine.h"
+#include "Condition.h"
+#include "State.h"
+
+#include "Helper.h"
+
 int main(int argc, char* argv[])
 {
     // Initialization
@@ -48,37 +54,37 @@ int main(int argc, char* argv[])
     // Below are node graphs created by adding a string of characters; each string is one row of nodes in the node graph.
 
     // Pac-Man node graph.
-    asciiMap.push_back("||||||||||||||||||||||||||||||");
-    asciiMap.push_back("||b...........||............||");
-    asciiMap.push_back("||.||||.|||||.||.|||||.||||.||");
-    asciiMap.push_back("||.||||.|||||.||.|||||.||||.||");
-    asciiMap.push_back("||.||||.|||||.||.|||||.||||.||");
-    asciiMap.push_back("||..........................||");
-    asciiMap.push_back("||.||||.||.||||||||.||.||||.||");
-    asciiMap.push_back("||.||||.||.||||||||.||.||||.||");
-    asciiMap.push_back("||......||....||....||......||");
-    asciiMap.push_back("|||||||.|||||.||.|||||.|||||||");
-    asciiMap.push_back("|||||||.|||||.||.|||||.|||||||");
-    asciiMap.push_back("|||||||.||..........||.|||||||");
-    asciiMap.push_back("|||||||.||.|||.||||.||.|||||||");
-    asciiMap.push_back("|||||||.||.|......|.||.|||||||");
-    asciiMap.push_back("a..........|......|..........a");
-    asciiMap.push_back("|||||||.||.|......|.||.|||||||");
-    asciiMap.push_back("|||||||.||.||||||||.||.|||||||");
-    asciiMap.push_back("|||||||.||..........||.|||||||");
-    asciiMap.push_back("|||||||.||.||||||||.||.|||||||");
-    asciiMap.push_back("|||||||.||.||||||||.||.|||||||");
-    asciiMap.push_back("||............||............||");
-    asciiMap.push_back("||.||||.|||||.||.|||||.||||.||");
-    asciiMap.push_back("||.||||.|||||.||.|||||.||||.||");
-    asciiMap.push_back("||...||................||...||");
-    asciiMap.push_back("||||.||.||.||||||||.||.||.||||");
-    asciiMap.push_back("||||.||.||.||||||||.||.||.||||");
-    asciiMap.push_back("||......||....||....||......||");
-    asciiMap.push_back("||.||||||||||.||.||||||||||.||");
-    asciiMap.push_back("||.||||||||||.||.||||||||||.||");
-    asciiMap.push_back("||.........................b||");
-    asciiMap.push_back("||||||||||||||||||||||||||||||");
+    //asciiMap.push_back("||||||||||||||||||||||||||||||");
+    //asciiMap.push_back("||b...........||............||");
+    //asciiMap.push_back("||.||||.|||||.||.|||||.||||.||");
+    //asciiMap.push_back("||.||||.|||||.||.|||||.||||.||");
+    //asciiMap.push_back("||.||||.|||||.||.|||||.||||.||");
+    //asciiMap.push_back("||..........................||");
+    //asciiMap.push_back("||.||||.||.||||||||.||.||||.||");
+    //asciiMap.push_back("||.||||.||.||||||||.||.||||.||");
+    //asciiMap.push_back("||......||....||....||......||");
+    //asciiMap.push_back("|||||||.|||||.||.|||||.|||||||");
+    //asciiMap.push_back("|||||||.|||||.||.|||||.|||||||");
+    //asciiMap.push_back("|||||||.||..........||.|||||||");
+    //asciiMap.push_back("|||||||.||.|||.||||.||.|||||||");
+    //asciiMap.push_back("|||||||.||.|......|.||.|||||||");
+    //asciiMap.push_back("a..........|......|..........a");
+    //asciiMap.push_back("|||||||.||.|......|.||.|||||||");
+    //asciiMap.push_back("|||||||.||.||||||||.||.|||||||");
+    //asciiMap.push_back("|||||||.||..........||.|||||||");
+    //asciiMap.push_back("|||||||.||.||||||||.||.|||||||");
+    //asciiMap.push_back("|||||||.||.||||||||.||.|||||||");
+    //asciiMap.push_back("||............||............||");
+    //asciiMap.push_back("||.||||.|||||.||.|||||.||||.||");
+    //asciiMap.push_back("||.||||.|||||.||.|||||.||||.||");
+    //asciiMap.push_back("||...||................||...||");
+    //asciiMap.push_back("||||.||.||.||||||||.||.||.||||");
+    //asciiMap.push_back("||||.||.||.||||||||.||.||.||||");
+    //asciiMap.push_back("||......||....||....||......||");
+    //asciiMap.push_back("||.||||||||||.||.||||||||||.||");
+    //asciiMap.push_back("||.||||||||||.||.||||||||||.||");
+    //asciiMap.push_back("||.........................b||");
+    //asciiMap.push_back("||||||||||||||||||||||||||||||");
     
     // Small example node graph.
     //asciiMap.push_back("||||||||||||");
@@ -91,30 +97,30 @@ int main(int argc, char* argv[])
     //asciiMap.push_back("||||||||||||");
 
     // Large, maze-like node graph.
-    //asciiMap.push_back("....|||||||||||||||||||||||||||");
-    //asciiMap.push_back("|........|...|......|.........|");
-    //asciiMap.push_back("|...|||..|...|......|.........|");
-    //asciiMap.push_back("|...|....|....................|");
-    //asciiMap.push_back("|...|....|....................|");
-    //asciiMap.push_back("|...|....|....................|");
-    //asciiMap.push_back("|...|....|...|||||....||||||..|");
-    //asciiMap.push_back("|...|....|.......|....|.|.....|");
-    //asciiMap.push_back("|...|||||||||....|....|.|.....|");
-    //asciiMap.push_back("|.....|.....|....||||.|.|.....|");
-    //asciiMap.push_back("|.....|.....|.......|...|...|||");
-    //asciiMap.push_back("|.....|.....|.......|...|...|.|");
-    //asciiMap.push_back("||||.....||||.......|...|...|.|");
-    //asciiMap.push_back("|........|..........|||||||.|.|");
-    //asciiMap.push_back("|........|.......|......|.....|");
-    //asciiMap.push_back("|..|||||||.......|......|.....|");
-    //asciiMap.push_back("|................|......|.....|");
-    //asciiMap.push_back("|.........||.....||||||||..||||");
-    //asciiMap.push_back("|.........||........|.........|");
-    //asciiMap.push_back("|.........||........|.........|");
-    //asciiMap.push_back("|||||||||||||||||||||||||||...|");
-    //asciiMap.push_back("|.............................|");
-    //asciiMap.push_back("|.............................|");
-    //asciiMap.push_back("|.............................|");
+    asciiMap.push_back("....|||||||||||||||||||||||||||");
+    asciiMap.push_back("|........|...|......|.........|");
+    asciiMap.push_back("|...|||..|...|......|.........|");
+    asciiMap.push_back("|...|....|....................|");
+    asciiMap.push_back("|...|....|....................|");
+    asciiMap.push_back("|...|....|....................|");
+    asciiMap.push_back("|...|....|...|||||....||||||..|");
+    asciiMap.push_back("|...|....|.......|....|.|.....|");
+    asciiMap.push_back("|...|||||||||....|....|.|.....|");
+    asciiMap.push_back("|.....|.....|....||||.|.|.....|");
+    asciiMap.push_back("|.....|.....|.......|...|...|||");
+    asciiMap.push_back("|.....|.....|.......|...|...|.|");
+    asciiMap.push_back("||||.....||||.......|...|...|.|");
+    asciiMap.push_back("|........|..........|||||||.|.|");
+    asciiMap.push_back("|........|.......|......|.....|");
+    asciiMap.push_back("|..|||||||.......|......|.....|");
+    asciiMap.push_back("|................|......|.....|");
+    asciiMap.push_back("|.........||.....||||||||..||||");
+    asciiMap.push_back("|.........||........|.........|");
+    asciiMap.push_back("|.........||........|.........|");
+    asciiMap.push_back("|||||||||||||||||||||||||||...|");
+    asciiMap.push_back("|.............................|");
+    asciiMap.push_back("|.............................|");
+    asciiMap.push_back("|.............................|");
 
     // Cityblock-esque node graph.
     //asciiMap.push_back("|||||||||||||||||||||||");
@@ -176,18 +182,34 @@ int main(int argc, char* argv[])
 
     Agent agent1(&nodeMap, new GotoPointBehaviour());
     agent1.SetNode(start);
-    agent1.SetPos({ (float)GetScreenWidth() / 2, (float)GetScreenHeight() / 2});
+    //agent1.SetPos({ (float)GetScreenWidth() / 2, (float)GetScreenHeight() / 2});
 
 
     Agent agent2(&nodeMap, new WanderBehaviour());
     agent2.SetNode(start);
-    agent2.SetPos({ (float)GetScreenWidth() / 2, (float)GetScreenHeight() / 2 });
+    //agent2.SetPos({ (float)GetScreenWidth() / 2, (float)GetScreenHeight() / 2 });
 
-    Agent agent3(&nodeMap, new SelectorBehaviour(new FollowerBehaviour(), new WanderBehaviour()));
+    // Set up a FSM--we're going to have 2 states with their own conditions
+    DistanceCondition* closerThan5 = new DistanceCondition(5.0f * nodeMap.CellSize(), true);
+    DistanceCondition* furtherThan7 = new DistanceCondition(7.0f * nodeMap.CellSize(), false);
+
+    // Register these states with the FSM, so it's responsible for deleting them now
+    State* wanderState = new State(new WanderBehaviour());
+    State* followState = new State(new FollowerBehaviour());
+    wanderState->AddTransition(closerThan5, followState);
+    followState->AddTransition(furtherThan7, wanderState);
+
+    // Make a FSM that starts off wandering
+    FiniteStateMachine* fsm = new FiniteStateMachine(wanderState);
+    fsm->AddState(wanderState);
+    fsm->AddState(followState);
+
+    //Agent agent3(&nodeMap, new SelectorBehaviour(new FollowerBehaviour(), new WanderBehaviour()));
+    Agent agent3(&nodeMap, fsm);
     agent3.SetNode(start);
     agent3.SetSpeed(50);
     agent3.SetTarget(&agent1);
-    agent3.SetPos({ (float)GetScreenWidth() / 2, (float)GetScreenHeight() / 2 });
+    //agent3.SetPos({ (float)GetScreenWidth() / 2, (float)GetScreenHeight() / 2 });
 
     // Main game update loop
     while (!WindowShouldClose())    // Detect window close button or ESC key
@@ -226,8 +248,8 @@ int main(int argc, char* argv[])
         //agent3.Update(GetFrameTime());
 
         agent1.Update(GetFrameTime());
-        //agent2.Update(GetFrameTime());
-        //agent3.Update(GetFrameTime());
+        agent2.Update(GetFrameTime());
+        agent3.Update(GetFrameTime());
 
         // Draw
         //----------------------------------------------------------------------------------
@@ -275,6 +297,8 @@ int main(int argc, char* argv[])
         agent1.Draw();
         agent2.Draw();
         agent3.Draw();
+
+        Helper::DrawCross(GetMousePosition(), 10, 1, WHITE, true);
 
         EndDrawing();   // Display to window.
 

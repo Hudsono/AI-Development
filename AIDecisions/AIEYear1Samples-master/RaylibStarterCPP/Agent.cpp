@@ -1,5 +1,18 @@
 #include "Agent.h"
+
+// Forward declarations.
 #include "Behaviour.h"
+
+Agent::Agent(NodeMap* _nodeMap, Behaviour* _behaviour, Behaviour* _behaviour2)
+{
+	// Initialise variables.
+	m_current = _behaviour;
+	m_nodeMap = _nodeMap;
+	m_colour = YELLOW;
+
+	m_pathAgent.SetMap(_nodeMap);
+	m_current->Enter(this);
+}
 
 void Agent::Update(float deltaTime)
 {

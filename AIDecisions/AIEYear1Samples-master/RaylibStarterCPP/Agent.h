@@ -11,7 +11,7 @@ public:
 	Agent() {}	// Base constructor.
 
 	// Constructor to assign a node map and a starting behaviour. Yellow.
-	Agent(NodeMap* _nodeMap, Behaviour* _behaviour, Behaviour* _behaviour2 = nullptr) : m_current(_behaviour), m_nodeMap(_nodeMap), m_colour({ 255, 255, 0, 255 }) { m_pathAgent.SetMap(_nodeMap); if (_behaviour2) { } }
+	Agent(NodeMap* _nodeMap, Behaviour* _behaviour, Behaviour* _behaviour2 = nullptr);// : m_current(_behaviour), m_nodeMap(_nodeMap), m_colour({ 255, 255, 0, 255 }) { m_pathAgent.SetMap(_nodeMap); if (_behaviour2) {} m_current->Enter(this); }
 	~Agent() { delete m_current; }	// Destructor.
 
 	void Update(float deltaTime);	// Update decision-making process and behaviour execution.

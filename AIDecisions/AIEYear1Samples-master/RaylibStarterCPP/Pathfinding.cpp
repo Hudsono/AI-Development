@@ -1,5 +1,8 @@
 #include "Pathfinding.h"
+
+// Tools
 #include <unordered_map>	// For recording teleport points.
+#include "Helper.h"
 
 // Declare static members to keep the linker happy
 //std::vector<Node*> NodeMap::DijkstraSearch(Node* startNode, Node* endNode);
@@ -185,13 +188,37 @@ void NodeMap::DrawPath(std::vector<Node*> nodeMapPath, Color lineColour)
 	// First check that there's even a path to draw...
 	if (nodeMapPath.size() > 0)
 	{
+		// Loop through each of the given nodes; draw lines between each node sequentially.
 		for (int i = 0; i < nodeMapPath.size() - 1; i++)
 		{
-			DrawLine((nodeMapPath[i]->position.x + 0.5f) * m_cellSize, (nodeMapPath[i]->position.y + 0.5f) * m_cellSize,
-				(nodeMapPath[i + 1]->position.x + 0.5f) * m_cellSize,
-				(nodeMapPath[i + 1]->position.y + 0.5f) * m_cellSize,
-				lineColour);
+			if (nodeMapPath[i]->teleChar != 0)
+			{
+				// Paths bridging teleport nodes are bright white.
+				DrawLine((nodeMapPath[i]->position.x + 0.5f) * m_cellSize, (nodeMapPath[i]->position.y + 0.5f) * m_cellSize,
+					(nodeMapPath[i + 1]->position.x + 0.5f) * m_cellSize,
+					(nodeMapPath[i + 1]->position.y + 0.5f) * m_cellSize,
+					WHITE);
+
+				// White '(x)' for teleport points.
+				Helper::DrawCross({ (nodeMapPath[i]->position.x + 0.5f) * m_cellSize, (nodeMapPath[i]->position.y + 0.5f) * m_cellSize }, 10, 2, WHITE, true);
+			}
+			else
+			{
+				// Paths bridging regular nodes are the given colour.
+				DrawLine((nodeMapPath[i]->position.x + 0.5f) * m_cellSize, (nodeMapPath[i]->position.y + 0.5f) * m_cellSize,
+					(nodeMapPath[i + 1]->position.x + 0.5f) * m_cellSize,
+					(nodeMapPath[i + 1]->position.y + 0.5f) * m_cellSize,
+					lineColour);
+			}
 		}
+		// 'x' drawn on the end of a path.
+		Helper::DrawCross({ (nodeMapPath.back()->position.x + 0.5f) * m_cellSize, (nodeMapPath.back()->position.y + 0.5f) * m_cellSize }, 5, 2, lineColour, false);
+
+		// Gets the rotation between the starting node and its immediate successor. Can be used for agent angles.
+		double rotation = atan2f((nodeMapPath[1]->position.y + 0.5f) * m_cellSize - (nodeMapPath.front()->position.y + 0.5f) * m_cellSize, (nodeMapPath[1]->position.x + 0.5f) * m_cellSize - (nodeMapPath.front()->position.x + 0.5f) * m_cellSize) * RAD2DEG;
+
+		// Draw a triangle on the start of the path, pointing at the second node.
+		DrawPoly({ (nodeMapPath.front()->position.x + 0.5f) * m_cellSize, (nodeMapPath.front()->position.y + 0.5f) * m_cellSize }, 3, 8, rotation + 33, lineColour);
 	}
 }
 
@@ -582,7 +609,7 @@ void PathAgent::Update(float deltaTime)
 				
 
 						// If we're on a teleport point destined for another teleport point (costs are -1), instantly teleport and don't bother moving.
-				if (!m_path.empty() && m_currentIndex < m_path.size() - 1)
+				if (!m_path.empty())
 				{
 					if (m_path[m_currentIndex]->teleChar != 0 && m_path[m_currentIndex]->teleChar == m_path[m_currentIndex]->parent->teleChar)
 					{

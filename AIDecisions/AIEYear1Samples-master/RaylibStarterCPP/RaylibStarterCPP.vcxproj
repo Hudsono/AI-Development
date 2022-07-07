@@ -169,15 +169,21 @@
   <ItemGroup>
     <ClCompile Include="Behaviour.cpp" />
     <ClCompile Include="Agent.cpp" />
+    <ClCompile Include="Condition.cpp" />
+    <ClCompile Include="FiniteStateMachine.cpp" />
     <ClCompile Include="Helper.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Pathfinding.cpp" />
+    <ClCompile Include="State.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Behaviour.h" />
     <ClInclude Include="Agent.h" />
+    <ClInclude Include="Condition.h" />
+    <ClInclude Include="FiniteStateMachine.h" />
     <ClInclude Include="Helper.h" />
     <ClInclude Include="Pathfinding.h" />
+    <ClInclude Include="State.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

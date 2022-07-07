@@ -1,4 +1,6 @@
 #pragma once
+
+// Tools
 #include "raylib.h"
 
 class Agent;	// Forward declaration--just need to know what an Agent is for the Agent pointer.
@@ -7,7 +9,9 @@ class Agent;	// Forward declaration--just need to know what an Agent is for the 
 class Behaviour
 {
 public:
-	virtual void Update(Agent* agent, float deltaTime) = 0;
+	virtual void Enter(Agent* agent) {}	// Logic executing upon entry. Empty stub function--not every behaviour needs entry logic.
+	virtual void Update(Agent* agent, float deltaTime) = 0;	// Pure virtual function; abstract. Child classes need this implemented.
+	virtual void Exit(Agent* agent) {}	// Logic executing upon exit. Empty stub function--not every behaviour needs exit logic.
 };
 
 class GotoPointBehaviour : public Behaviour
@@ -19,12 +23,14 @@ public:
 class WanderBehaviour : public Behaviour
 {
 public:
+	virtual void Enter(Agent* agent);
 	virtual void Update(Agent* agent, float deltaTime);
 };
 
 class FollowerBehaviour : public Behaviour
 {
 public:
+	virtual void Enter(Agent* agent);
 	virtual void Update(Agent* agent, float deltaTime);
 private:
 	Vector2 lastTargetPosition;	// The last time we tried to path to a given target.

@@ -1,6 +1,9 @@
 #include "Behaviour.h"
+
+// Forward declarations
 #include "Agent.h"
 
+// Tools
 #include "raymath.h"    // Distance calculation
 
 void GotoPointBehaviour::Update(Agent* agent, float deltaTime)
@@ -12,10 +15,23 @@ void GotoPointBehaviour::Update(Agent* agent, float deltaTime)
     }
 }
 
+void WanderBehaviour::Enter(Agent* agent)
+{
+    // Blue when wandering
+    agent->SetColour(BLUE);
+}
+
 void WanderBehaviour::Update(Agent* agent, float deltaTime)
 {
     if (agent->PathComplete())
         agent->GoToRandom();
+}
+
+void FollowerBehaviour::Enter(Agent* agent)
+{
+    // Red when following
+    agent->SetColour(RED);
+    agent->Reset();
 }
 
 void FollowerBehaviour::Update(Agent* agent, float deltaTime)
@@ -34,10 +50,13 @@ void FollowerBehaviour::Update(Agent* agent, float deltaTime)
             lastTargetPosition = target->GetPos();
             agent->GoTo(lastTargetPosition);
         }
-        //else if (Vector2Distance(agent->GetPos(), agent->GetTarget()->GetPos()) <= agent->GetNodeMap()->CellSize() * 5)
-        //{
-        //    agent->GoTo(target->GetPos());
-        //}
+        else if (agent->PathComplete() && Vector2Distance(target->GetPos(), agent->GetPos()) > agent->GetNodeMap()->CellSize())
+        {
+            // Extra check for when an agent's path to its target moves away from the target, then later finds its target in the same spot.
+            // Without this check, the agent does not move if the target was found twice without the target having moved.
+            // Additional distance check to prevent constant path recalculation when close to the target (could path directly to target now).
+            agent->GoTo(lastTargetPosition);
+        }
     }
 }
 
