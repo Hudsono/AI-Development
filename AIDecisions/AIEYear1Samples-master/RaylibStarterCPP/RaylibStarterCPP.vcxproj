@@ -175,6 +175,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Pathfinding.cpp" />
     <ClCompile Include="State.cpp" />
+    <ClCompile Include="UtilityAI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Behaviour.h" />
@@ -184,6 +185,7 @@
     <ClInclude Include="Helper.h" />
     <ClInclude Include="Pathfinding.h" />
     <ClInclude Include="State.h" />
+    <ClInclude Include="UtilityAI.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

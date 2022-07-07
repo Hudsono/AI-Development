@@ -35,6 +35,8 @@
 #include "Condition.h"
 #include "State.h"
 
+#include "UtilityAI.h"
+
 #include "Helper.h"
 
 int main(int argc, char* argv[])
@@ -98,7 +100,7 @@ int main(int argc, char* argv[])
 
     // Large, maze-like node graph.
     asciiMap.push_back("....|||||||||||||||||||||||||||");
-    asciiMap.push_back("|........|...|......|.........|");
+    asciiMap.push_back("|.a......|...|......|.........|");
     asciiMap.push_back("|...|||..|...|......|.........|");
     asciiMap.push_back("|...|....|....................|");
     asciiMap.push_back("|...|....|....................|");
@@ -117,9 +119,9 @@ int main(int argc, char* argv[])
     asciiMap.push_back("|.........||.....||||||||..||||");
     asciiMap.push_back("|.........||........|.........|");
     asciiMap.push_back("|.........||........|.........|");
-    asciiMap.push_back("|||||||||||||||||||||||||||...|");
+    asciiMap.push_back("|||||.|||||||||||||||||||||...|");
     asciiMap.push_back("|.............................|");
-    asciiMap.push_back("|.............................|");
+    asciiMap.push_back("|..a..........................|");
     asciiMap.push_back("|.............................|");
 
     // Cityblock-esque node graph.
@@ -199,16 +201,22 @@ int main(int argc, char* argv[])
     wanderState->AddTransition(closerThan5, followState);
     followState->AddTransition(furtherThan7, wanderState);
 
-    // Make a FSM that starts off wandering
+    // Make a FSM that starts off wandering.
     FiniteStateMachine* fsm = new FiniteStateMachine(wanderState);
     fsm->AddState(wanderState);
     fsm->AddState(followState);
 
+    // Make a UtilityAI that evaluates between following or wandering.
+    UtilityAI* utilityAI = new UtilityAI(true);
+    utilityAI->AddBehaviour(new WanderBehaviour());
+    utilityAI->AddBehaviour(new FollowerBehaviour());
+
     //Agent agent3(&nodeMap, new SelectorBehaviour(new FollowerBehaviour(), new WanderBehaviour()));
-    Agent agent3(&nodeMap, fsm);
+    //Agent agent3(&nodeMap, fsm);
+    Agent agent3(&nodeMap, utilityAI);
     agent3.SetNode(start);
     agent3.SetSpeed(50);
-    agent3.SetTarget(&agent1);
+    agent3.SetTarget(&agent2);
     //agent3.SetPos({ (float)GetScreenWidth() / 2, (float)GetScreenHeight() / 2 });
 
     // Main game update loop
@@ -250,6 +258,8 @@ int main(int argc, char* argv[])
         agent1.Update(GetFrameTime());
         agent2.Update(GetFrameTime());
         agent3.Update(GetFrameTime());
+
+        //agent1.SetPos(GetMousePosition());
 
         // Draw
         //----------------------------------------------------------------------------------

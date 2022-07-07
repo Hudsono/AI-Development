@@ -19,6 +19,7 @@ void WanderBehaviour::Enter(Agent* agent)
 {
     // Blue when wandering
     agent->SetColour(BLUE);
+    agent->SetSpeed(50);
 }
 
 void WanderBehaviour::Update(Agent* agent, float deltaTime)
@@ -27,11 +28,23 @@ void WanderBehaviour::Update(Agent* agent, float deltaTime)
         agent->GoToRandom();
 }
 
+float WanderBehaviour::Evaluate(Agent* agent)
+{
+    Agent* target = agent->GetTarget();
+    float dist = Vector2Distance(agent->GetPos(), target->GetPos());
+
+    float eval = dist;
+    if (eval < 0)
+        eval = 0;
+    return eval;
+}
+
 void FollowerBehaviour::Enter(Agent* agent)
 {
     // Red when following
     agent->SetColour(RED);
     agent->Reset();
+    agent->SetSpeed(60);
 }
 
 void FollowerBehaviour::Update(Agent* agent, float deltaTime)
@@ -58,6 +71,17 @@ void FollowerBehaviour::Update(Agent* agent, float deltaTime)
             agent->GoTo(lastTargetPosition);
         }
     }
+}
+
+float FollowerBehaviour::Evaluate(Agent* agent)
+{
+    Agent* target = agent->GetTarget();
+    float dist = Vector2Distance(target->GetPos(), agent->GetPos());
+
+    float eval = 10 * agent->GetNodeMap()->CellSize() - dist;
+    if (eval < 0)
+        eval = 0;
+    return eval;
 }
 
 void SelectorBehaviour::Update(Agent* agent, float deltaTime)

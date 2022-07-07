@@ -12,6 +12,12 @@ public:
 	virtual void Enter(Agent* agent) {}	// Logic executing upon entry. Empty stub function--not every behaviour needs entry logic.
 	virtual void Update(Agent* agent, float deltaTime) = 0;	// Pure virtual function; abstract. Child classes need this implemented.
 	virtual void Exit(Agent* agent) {}	// Logic executing upon exit. Empty stub function--not every behaviour needs exit logic.
+
+	// Used by UtilityAI to determine what behaviour to execute.
+	virtual float Evaluate(Agent* agent) { return 0.0f; }
+
+	// Resets the minimum-acting timer for this behaviour (cannot transition until timer is up!). Defaults to having no timer.
+	virtual float ResetTimer() { return 0.0f; }
 };
 
 class GotoPointBehaviour : public Behaviour
@@ -25,6 +31,10 @@ class WanderBehaviour : public Behaviour
 public:
 	virtual void Enter(Agent* agent);
 	virtual void Update(Agent* agent, float deltaTime);
+
+	virtual float Evaluate(Agent* agent);
+
+	virtual float ResetTimer() { return 1.0f; }	// Minimum 1 second acting this behaviour.
 };
 
 class FollowerBehaviour : public Behaviour
@@ -32,6 +42,10 @@ class FollowerBehaviour : public Behaviour
 public:
 	virtual void Enter(Agent* agent);
 	virtual void Update(Agent* agent, float deltaTime);
+
+	virtual float Evaluate(Agent* agent);
+
+	virtual float ResetTimer() { return 3.0f; }	// Minimum 3 seconds acting this behaviour.
 private:
 	Vector2 lastTargetPosition;	// The last time we tried to path to a given target.
 };

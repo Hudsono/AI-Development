@@ -1,4 +1,5 @@
 #include "Helper.h"
+#include <random>
 
 // Draws an "X" with an optional circle around it.
 void Helper::DrawCross(Vector2 pos, float size, float thick, Color colour, bool encircle)
@@ -15,4 +16,23 @@ void Helper::DrawCross(Vector2 pos, float size, float thick, Color colour, bool 
 void Helper::DrawLineDash(Vector2 startPos, Vector2 endPos, float thick, Color colour)
 {
 
+}
+
+int Helper::GetRouletteIndex(std::vector<float> weights)
+{
+	float totalWeight = 0;
+
+	for (float weight : weights)
+		totalWeight += weight;
+
+	float rng = rand() % (int)totalWeight;
+
+	float accumilator = 0;
+
+	for (int i = 0; i < weights.size(); i++)
+	{
+		accumilator += weights[i];
+		if (accumilator > rng)
+			return i;
+	}
 }

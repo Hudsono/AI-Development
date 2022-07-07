@@ -611,12 +611,20 @@ void PathAgent::Update(float deltaTime)
 						// If we're on a teleport point destined for another teleport point (costs are -1), instantly teleport and don't bother moving.
 				if (!m_path.empty())
 				{
-					if (m_path[m_currentIndex]->teleChar != 0 && m_path[m_currentIndex]->teleChar == m_path[m_currentIndex]->parent->teleChar)
+					bool telePairCondition = false;
+
+					if (m_path[m_currentIndex]->parent)
+						telePairCondition = m_path[m_currentIndex]->teleChar != 0 && m_path[m_currentIndex]->teleChar == m_path[m_currentIndex]->parent->teleChar;
+					else
+						telePairCondition = m_path[m_currentIndex]->teleChar != 0 && m_path[m_currentIndex]->teleChar == m_path[m_currentIndex + 1]->parent->teleChar;
+
+					if (telePairCondition)
 					{
 						Vector2 telePos = m_nodeMap->NodeWPos(m_path[m_currentIndex]);
 						m_position.x = telePos.x + m_nodeMap->CellSize() / 2;
 						m_position.y = telePos.y + m_nodeMap->CellSize() / 2;
 					}
+
 				}
 			}
 
