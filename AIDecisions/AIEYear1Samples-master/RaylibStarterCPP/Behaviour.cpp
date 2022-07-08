@@ -2,6 +2,7 @@
 
 // Forward declarations
 #include "Agent.h"
+#include "BH_Behaviour.h"
 
 // Tools
 #include "raymath.h"    // Distance calculation
@@ -127,4 +128,23 @@ void SelectorBehaviour::SetBehaviour(Behaviour* b, Agent* agent)
         m_selected = b;
         agent->Reset();
     }
+}
+
+void DecisionBehaviour::Update(Agent* agent, float deltaTime)
+{
+    //m_decision->makeDecision(agent, deltaTime);
+}
+
+BehaviourTreeBehaviour::BehaviourTreeBehaviour(std::initializer_list<BT_Behaviour*> _BT_behaviours)
+{
+    // Add all the given BT Behvaiours to the root.
+    for (BT_Behaviour* BTBehaviour : _BT_behaviours)
+        m_BTbehaviours.push_back(BTBehaviour);
+}
+
+void BehaviourTreeBehaviour::Update(Agent* agent, float deltaTime)
+{
+    // Check/Update all the BT behaviours.
+    for (BT_Behaviour* BTBehaviour : m_BTbehaviours)
+        BTBehaviour->Check(agent, deltaTime);
 }

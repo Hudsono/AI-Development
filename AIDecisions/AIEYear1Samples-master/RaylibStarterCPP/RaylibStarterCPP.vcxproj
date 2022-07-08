@@ -169,7 +169,10 @@
   <ItemGroup>
     <ClCompile Include="Behaviour.cpp" />
     <ClCompile Include="Agent.cpp" />
+    <ClCompile Include="BH_Behaviour.cpp" />
+    <ClCompile Include="BT_BehaviourCustoms.cpp" />
     <ClCompile Include="Condition.cpp" />
+    <ClCompile Include="DecisionTree.cpp" />
     <ClCompile Include="FiniteStateMachine.cpp" />
     <ClCompile Include="Helper.cpp" />
     <ClCompile Include="main.cpp" />
@@ -180,7 +183,10 @@
   <ItemGroup>
     <ClInclude Include="Behaviour.h" />
     <ClInclude Include="Agent.h" />
+    <ClInclude Include="BH_Behaviour.h" />
+    <ClInclude Include="BT_BehaviourCustoms.h" />
     <ClInclude Include="Condition.h" />
+    <ClInclude Include="DecisionTree.h" />
     <ClInclude Include="FiniteStateMachine.h" />
     <ClInclude Include="Helper.h" />
     <ClInclude Include="Pathfinding.h" />

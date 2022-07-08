@@ -37,6 +37,8 @@
 
 #include "UtilityAI.h"
 
+#include "BH_Behaviour.h"
+
 #include "Helper.h"
 
 int main(int argc, char* argv[])
@@ -100,7 +102,7 @@ int main(int argc, char* argv[])
 
     // Large, maze-like node graph.
     asciiMap.push_back("....|||||||||||||||||||||||||||");
-    asciiMap.push_back("|.a......|...|......|.........|");
+    asciiMap.push_back("|a.......|...|......|........a|");
     asciiMap.push_back("|...|||..|...|......|.........|");
     asciiMap.push_back("|...|....|....................|");
     asciiMap.push_back("|...|....|....................|");
@@ -121,8 +123,8 @@ int main(int argc, char* argv[])
     asciiMap.push_back("|.........||........|.........|");
     asciiMap.push_back("|||||.|||||||||||||||||||||...|");
     asciiMap.push_back("|.............................|");
-    asciiMap.push_back("|..a..........................|");
     asciiMap.push_back("|.............................|");
+    asciiMap.push_back("|a...........................a|");
 
     // Cityblock-esque node graph.
     //asciiMap.push_back("|||||||||||||||||||||||");
@@ -191,6 +193,7 @@ int main(int argc, char* argv[])
     agent2.SetNode(start);
     //agent2.SetPos({ (float)GetScreenWidth() / 2, (float)GetScreenHeight() / 2 });
 
+    // FSM //
     // Set up a FSM--we're going to have 2 states with their own conditions
     DistanceCondition* closerThan5 = new DistanceCondition(5.0f * nodeMap.CellSize(), true);
     DistanceCondition* furtherThan7 = new DistanceCondition(7.0f * nodeMap.CellSize(), false);
@@ -206,14 +209,20 @@ int main(int argc, char* argv[])
     fsm->AddState(wanderState);
     fsm->AddState(followState);
 
+    // UtilityAI //
     // Make a UtilityAI that evaluates between following or wandering.
     UtilityAI* utilityAI = new UtilityAI(true);
     utilityAI->AddBehaviour(new WanderBehaviour());
     utilityAI->AddBehaviour(new FollowerBehaviour());
 
+    // BehaviourTree //
+    // https://web.archive.org/web/20131209105717/http://www.altdevblogaday.com/2011/02/24/introduction-to-behavior-trees/ helped a lot understanding...
+    BehaviourTreeBehaviour* BHTree = new BehaviourTreeBehaviour({  });
+
     //Agent agent3(&nodeMap, new SelectorBehaviour(new FollowerBehaviour(), new WanderBehaviour()));
     //Agent agent3(&nodeMap, fsm);
-    Agent agent3(&nodeMap, utilityAI);
+    //Agent agent3(&nodeMap, utilityAI);
+    Agent agent3(&nodeMap, BHTree);
     agent3.SetNode(start);
     agent3.SetSpeed(50);
     agent3.SetTarget(&agent2);

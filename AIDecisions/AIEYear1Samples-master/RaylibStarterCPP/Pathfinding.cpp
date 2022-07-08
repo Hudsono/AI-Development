@@ -141,8 +141,8 @@ void NodeMap::Initialise(std::vector<std::string> asciiMap, int cellSize, Diagon
 			for (int j = i; j < mapPair.second.size(); j++)
 			{
 				Node* teleNode2 = GetNode(mapPair.second[j].x, mapPair.second[j].y);
-				teleNode1->ConnectTo(teleNode2, -1);
-				teleNode2->ConnectTo(teleNode1, -1);
+				teleNode1->ConnectTo(teleNode2, 1);
+				teleNode2->ConnectTo(teleNode1, 1);
 			}
 		}
 	}
@@ -151,8 +151,9 @@ void NodeMap::Initialise(std::vector<std::string> asciiMap, int cellSize, Diagon
 void NodeMap::Draw()
 {
 	// Red colour for the blocks
-	Color cellColor = RED;
-	Color lineColor = { 0, 121, 241, 50 };
+	Color wallColour = RED;
+	Color lineColour = { 0, 121, 241, 50 };	// Translucent blue for regular connections
+	Color lineColourTele = { 255, 255, 255, 50 };	// Translucent white/gray for teleport connections
 
 	for (int y = 0; y < m_height; y++)
 	{
@@ -162,7 +163,7 @@ void NodeMap::Draw()
 			if (node == nullptr)
 			{
 				// Draw a solid block in empty squares w/o a navigation node
-				DrawRectangle((int)(x * m_cellSize), (int)(y * m_cellSize), (int)m_cellSize - 1, (int)m_cellSize - 1, cellColor);	// the -1 means we'll have a 1-pixel gap between walls so we can visualise the grid better.
+				DrawRectangle((int)(x * m_cellSize), (int)(y * m_cellSize), (int)m_cellSize - 1, (int)m_cellSize - 1, wallColour);	// the -1 means we'll have a 1-pixel gap between walls so we can visualise the grid better.
 			}
 			else
 			{
@@ -171,13 +172,19 @@ void NodeMap::Draw()
 				{
 					Node* other = node->connections[i].target;
 	
+					// Draw a line between the two nodes. Draws white lines between matching teleport nodes.
 					DrawLine((x + 0.5f) * m_cellSize, (y + 0.5f) * m_cellSize,
 						(other->position.x + 0.5f) * m_cellSize,
 						(other->position.y + 0.5f) * m_cellSize,
-						lineColor);
+						node->teleChar == other->teleChar && node->teleChar != 0 ? lineColourTele : lineColour);
 				}
 
-				DrawCircle(x * m_cellSize + m_cellSize / 2, y * m_cellSize + m_cellSize / 2, 2, lineColor);	// Draw a dot per node.
+				// Draw a dot per node. Blue for regular; white for teleport nodes.
+				if (node->teleChar != 0)
+					DrawCircle(x * m_cellSize + m_cellSize / 2, y * m_cellSize + m_cellSize / 2, 3, lineColourTele);	
+				else
+					DrawCircle(x * m_cellSize + m_cellSize / 2, y * m_cellSize + m_cellSize / 2, 2, lineColour);	
+
 			}
 		}
 	}
@@ -582,18 +589,31 @@ void PathAgent::Update(float deltaTime)
 
 		if (magnitude > 0)
 		{
-			m_position.x += m_speed * deltaTime * vecUnit.x;
-			m_position.y += m_speed * deltaTime * vecUnit.y;
+			// If we're on a teleport point, destined for another teleport point, instantly teleport and don't bother moving.
+			bool telePairCondition = false;
+
+			// First check that there's a parent to the current node.
+			if (m_path[m_currentIndex]->parent)
+				telePairCondition = m_path[m_currentIndex]->teleChar != 0 && m_path[m_currentIndex]->teleChar == m_path[m_currentIndex]->parent->teleChar;
+
+			if (telePairCondition)
+			{
+				// We're between teleport points--teleport!
+				Vector2 telePos = m_nodeMap->NodeWPos(m_path[m_currentIndex]);
+				m_position.x = telePos.x + m_nodeMap->CellSize() / 2;
+				m_position.y = telePos.y + m_nodeMap->CellSize() / 2;
+			}
+			else
+			{
+				// We're not between teleport points--move as normal.
+				m_position.x += m_speed * deltaTime * vecUnit.x;
+				m_position.y += m_speed * deltaTime * vecUnit.y;
+			}
 		}
 		else
 		{
-			// Overshot
+			// Overshot: record that we've progressed along the path.
 			m_currentIndex += 1;
-
-			//if (m_currentIndex > 1)
-			//	GoToPos(GetMousePosition(), true);
-			//std::cout << "Index = " << m_currentIndex << std::endl;
-			
 
 			// Is this the end?
 			if (m_currentIndex - 1 == m_path.size() - 1)
@@ -602,66 +622,7 @@ void PathAgent::Update(float deltaTime)
 				m_position = currNode;	// Set agent's position to the last node's position.
 				m_path.clear();	// Clear path to stop future pathing. We're done here.
 			}
-			else
-			{
-				// No, there is another.
-				// Compensate for overshot-ness by using it for the next node...
-				
-
-						// If we're on a teleport point destined for another teleport point (costs are -1), instantly teleport and don't bother moving.
-				if (!m_path.empty())
-				{
-					bool telePairCondition = false;
-
-					if (m_path[m_currentIndex]->parent)
-						telePairCondition = m_path[m_currentIndex]->teleChar != 0 && m_path[m_currentIndex]->teleChar == m_path[m_currentIndex]->parent->teleChar;
-					else
-						telePairCondition = m_path[m_currentIndex]->teleChar != 0 && m_path[m_currentIndex]->teleChar == m_path[m_currentIndex + 1]->parent->teleChar;
-
-					if (telePairCondition)
-					{
-						Vector2 telePos = m_nodeMap->NodeWPos(m_path[m_currentIndex]);
-						m_position.x = telePos.x + m_nodeMap->CellSize() / 2;
-						m_position.y = telePos.y + m_nodeMap->CellSize() / 2;
-					}
-
-				}
-			}
-
 		}
-
-
-
-		// Brain no work--simple solution for now
-
-		//if (m_path.size() > 1)
-		//{
-		//	if (m_position.x < (m_path[m_currentIndex + 1]->position.x + 0.5f) * 50)
-		//		m_position.x += m_speed;
-		//	else if (m_position.x > (m_path[m_currentIndex + 1]->position.x + 0.5f) * 50)
-		//		m_position.x -= m_speed;
-		//
-		//
-		//	if (m_position.y < (m_path[m_currentIndex + 1]->position.y + 0.5f) * 50)
-		//		m_position.y += m_speed;
-		//	else if (m_position.y > (m_path[m_currentIndex + 1]->position.y + 0.5f) * 50)
-		//		m_position.y -= m_speed;
-		//
-		//	if (m_position.x == (m_path[m_currentIndex + 1]->position.x + 0.5f) * 50 && m_position.y == (m_path[m_currentIndex + 1]->position.y + 0.5f) * 50)
-		//	{
-		//		m_currentIndex++;
-		//
-		//		if (m_currentIndex >= m_path.size() - 1)
-		//		{
-		//			// finished
-		//			m_path.clear();
-		//		}
-		//		else
-		//		{
-		//			m_currentNode = m_path[m_currentIndex];
-		//		}
-		//	}
-		//}
 	}
 }
 

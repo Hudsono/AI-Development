@@ -2,8 +2,12 @@
 
 // Tools
 #include "raylib.h"
+#include <vector>
+
 
 class Agent;	// Forward declaration--just need to know what an Agent is for the Agent pointer.
+class Decision;
+class BT_Behaviour;
 
 // Abstract base class for all actions.
 class Behaviour
@@ -34,7 +38,7 @@ public:
 
 	virtual float Evaluate(Agent* agent);
 
-	virtual float ResetTimer() { return 1.0f; }	// Minimum 1 second acting this behaviour.
+	virtual float ResetTimer() { return 0.2f; }	// Minimum 200ms acting this behaviour.
 };
 
 class FollowerBehaviour : public Behaviour
@@ -64,4 +68,28 @@ public:
 	virtual void Update(Agent* agent, float deltaTime);
 
 	void SetBehaviour(Behaviour* b, Agent* agent);
+};
+
+class DecisionBehaviour : public Behaviour
+{
+private:
+	Decision* m_decision;
+
+public:
+	virtual void Update(Agent* agent, float deltaTime);
+};
+
+// Root of a Behaviour Tree. Inherits from base Behaviour for Agent compatability/flexibility.
+// .. this name is a bit long, but it's descriptive among all the other things happeneing here..
+class BehaviourTreeBehaviour : public Behaviour
+{
+private:
+	std::vector<BT_Behaviour*> m_BTbehaviours;	// List of tree behaviours to traverse through initially.
+
+public:
+	// Constructor to add varying number of BT behaviours.
+	BehaviourTreeBehaviour(std::initializer_list<BT_Behaviour*> _BT_behaviours);
+
+	// Checks each of its behaviours
+	virtual void Update(Agent* agent, float deltaTime);
 };
