@@ -27,6 +27,7 @@ public:
 class GotoPointBehaviour : public Behaviour
 {
 public:
+	virtual void Enter(Agent* agent);
 	virtual void Update(Agent* agent, float deltaTime);
 };
 
@@ -46,12 +47,53 @@ class FollowerBehaviour : public Behaviour
 public:
 	virtual void Enter(Agent* agent);
 	virtual void Update(Agent* agent, float deltaTime);
+	virtual void Exit(Agent* agent);
 
 	virtual float Evaluate(Agent* agent);
 
 	virtual float ResetTimer() { return 3.0f; }	// Minimum 3 seconds acting this behaviour.
 private:
 	Vector2 lastTargetPosition;	// The last time we tried to path to a given target.
+};
+
+// The agent slowly follows a set path until disturbed.
+class GuardBehaviour : public Behaviour
+{
+public:
+	virtual void Enter(Agent* agent);
+	virtual void Update(Agent* agent, float deltaTime);
+};
+
+// The guard stops in place for a bit, looks around.
+class PostBehaviour : public Behaviour
+{
+public:
+	virtual void Enter(Agent* agent);
+	virtual void Update(Agent* agent, float deltaTime);
+};
+
+// The agent senses a threat but cannot see it; not confident where the threat is. Does not want to "alert" the threat--slow/no movement.
+class SusBehaviour : public Behaviour
+{
+public:
+	virtual void Enter(Agent* agent);
+	virtual void Update(Agent* agent, float deltaTime);
+};
+
+// The agent is somewhat confident or interested in a potential threat/just lost sight of their target.
+class SearchBehaviour : public Behaviour
+{
+public:
+	virtual void Enter(Agent* agent);
+	virtual void Update(Agent* agent, float deltaTime);
+};
+
+// The agent's target is within range to deal damage to it.
+class AttackBehaviour : public Behaviour
+{
+public:
+	virtual void Enter(Agent* agent);
+	virtual void Update(Agent* agent, float deltaTime);
 };
 
 class SelectorBehaviour : public Behaviour

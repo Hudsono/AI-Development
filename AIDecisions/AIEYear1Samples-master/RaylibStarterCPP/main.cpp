@@ -38,6 +38,11 @@
 #include "UtilityAI.h"
 
 #include "BH_Behaviour.h"
+#include "BT_BehaviourCustoms.h"
+
+#include "SoundEmitter.h"
+#include "Blackboard.h"
+#include "GameManager.h"
 
 #include "Helper.h"
 
@@ -101,30 +106,34 @@ int main(int argc, char* argv[])
     //asciiMap.push_back("||||||||||||");
 
     // Large, maze-like node graph.
-    asciiMap.push_back("....|||||||||||||||||||||||||||");
-    asciiMap.push_back("|a.......|...|......|........a|");
-    asciiMap.push_back("|...|||..|...|......|.........|");
-    asciiMap.push_back("|...|....|....................|");
-    asciiMap.push_back("|...|....|....................|");
-    asciiMap.push_back("|...|....|....................|");
-    asciiMap.push_back("|...|....|...|||||....||||||..|");
-    asciiMap.push_back("|...|....|.......|....|.|.....|");
-    asciiMap.push_back("|...|||||||||....|....|.|.....|");
-    asciiMap.push_back("|.....|.....|....||||.|.|.....|");
-    asciiMap.push_back("|.....|.....|.......|...|...|||");
-    asciiMap.push_back("|.....|.....|.......|...|...|.|");
-    asciiMap.push_back("||||.....||||.......|...|...|.|");
-    asciiMap.push_back("|........|..........|||||||.|.|");
-    asciiMap.push_back("|........|.......|......|.....|");
-    asciiMap.push_back("|..|||||||.......|......|.....|");
-    asciiMap.push_back("|................|......|.....|");
-    asciiMap.push_back("|.........||.....||||||||..||||");
-    asciiMap.push_back("|.........||........|.........|");
-    asciiMap.push_back("|.........||........|.........|");
-    asciiMap.push_back("|||||.|||||||||||||||||||||...|");
-    asciiMap.push_back("|.............................|");
-    asciiMap.push_back("|.............................|");
-    asciiMap.push_back("|a...........................a|");
+                                                             // Y
+    asciiMap.push_back("....|||||||||||||||||||||||||||");   // 0
+    asciiMap.push_back("|........|...|......|.........|");   // 1
+    asciiMap.push_back("|...|||..|...|......|.........|");   // 2
+    asciiMap.push_back("|...|....|....................|");   // 3
+    asciiMap.push_back("|...|....|....................|");   // 4
+    asciiMap.push_back("|...|....|....................|");   // 5
+    asciiMap.push_back("|...|....|...|||||....||||||..|");   // 6
+    asciiMap.push_back("|...|....|.......|....|.|.....|");   // 7
+    asciiMap.push_back("|...|||||||||....|....|.|.....|");   // 8
+    asciiMap.push_back("|.....|.....|....||||.|.|.....|");   // 9
+    asciiMap.push_back("|.....|.....|.......|...|...|||");   // 10
+    asciiMap.push_back("|.....|.....|.......|...|...|.|");   // 11
+    asciiMap.push_back("||||.....||||.......|...|...|.|");   // 12
+    asciiMap.push_back("|........|..........|||||||.|.|");   // 13
+    asciiMap.push_back("|........|.......|......|.....|");   // 14
+    asciiMap.push_back("|..|||||||.......|......|.....|");   // 15
+    asciiMap.push_back("|................|......|.....|");   // 16
+    asciiMap.push_back("|.........||.....||||||||..||||");   // 17
+    asciiMap.push_back("|.........||........|.........|");   // 18
+    asciiMap.push_back("|.........||........|.........|");   // 19
+    asciiMap.push_back("|||||.|||||||||||||||||||||...|");   // 20
+    asciiMap.push_back("|.............................|");   // 21
+    asciiMap.push_back("|.............................|");   // 22
+    asciiMap.push_back("|.............................|");   // 23
+
+    //                X 0123456789111111111122222222223
+    //                  ..........012345678901234567890
 
     // Cityblock-esque node graph.
     //asciiMap.push_back("|||||||||||||||||||||||");
@@ -168,6 +177,9 @@ int main(int argc, char* argv[])
     Node* start = nodeMap.GetNode(1, 1);
     Node* end = nodeMap.GetNode(1, 1);
 
+    GameManager* g_GameManager = new GameManager();
+    BlackBoard* g_BlackBoard = new BlackBoard(g_GameManager);
+
     // Create 3 path agents: #1 using Dijkstra, #2 using A* with a Euclidean heuristic, and #3 using A* with a Manhattan heuristic. 
     // We assign each to the node map we created, all spawned at the world position of the node at X, Y of 1, 1.
     //PathAgent agent1(PathAgent::Algorithms::Dijkstra, PathAgent::Heuristics::Euclidean, &nodeMap, { nodeMap.NodeWPos(1, 1)});    // Doesn't use heuristic.
@@ -184,30 +196,39 @@ int main(int argc, char* argv[])
     //agent2.SetShape(PathAgent::Shapes::Diamond);
     //agent3.SetShape(PathAgent::Shapes::Square);
 
-    Agent agent1(&nodeMap, new GotoPointBehaviour());
-    agent1.SetNode(start);
+    Agent* agent1 = new Agent(&nodeMap, new GotoPointBehaviour(), g_BlackBoard);
+    agent1->SetNode(start);
+    agent1->SetPos({ 450, 450 });
     //agent1.SetPos({ (float)GetScreenWidth() / 2, (float)GetScreenHeight() / 2});
 
 
-    Agent agent2(&nodeMap, new WanderBehaviour());
-    agent2.SetNode(start);
+    Agent* agent2 = new Agent(&nodeMap, new WanderBehaviour(), g_BlackBoard);
+    agent2->SetNode(start);
     //agent2.SetPos({ (float)GetScreenWidth() / 2, (float)GetScreenHeight() / 2 });
 
     // FSM //
     // Set up a FSM--we're going to have 2 states with their own conditions
     DistanceCondition* closerThan5 = new DistanceCondition(5.0f * nodeMap.CellSize(), true);
     DistanceCondition* furtherThan7 = new DistanceCondition(7.0f * nodeMap.CellSize(), false);
+    TimeCondition* after5 = new TimeCondition(20.0f);
+    SoundCondition* hearSound = new SoundCondition(g_GameManager->GetSounds());
 
     // Register these states with the FSM, so it's responsible for deleting them now
-    State* wanderState = new State(new WanderBehaviour());
+    State* guardState = new State(new GuardBehaviour());
     State* followState = new State(new FollowerBehaviour());
-    wanderState->AddTransition(closerThan5, followState);
-    followState->AddTransition(furtherThan7, wanderState);
+    State* searchState = new State(new SearchBehaviour());
+    guardState->AddTransition(closerThan5, followState);    // If target gets close, chase it.
+    followState->AddTransition(furtherThan7, searchState);  // If target gets too far, start searching.
+    searchState->AddTransition(after5, guardState);         // After 5 seconds of not seeing the target, go back to guarding
+    searchState->AddTransition(closerThan5, followState);   // If target gets close, go back to chasing.
+    guardState->AddTransition(hearSound, searchState);  // If the guard hears a sound, start searching it.
+    searchState->AddTransition(hearSound, searchState); // If the guard hears a sound while searching, start a new search.
 
     // Make a FSM that starts off wandering.
-    FiniteStateMachine* fsm = new FiniteStateMachine(wanderState);
-    fsm->AddState(wanderState);
+    FiniteStateMachine* fsm = new FiniteStateMachine(guardState);
+    fsm->AddState(guardState);
     fsm->AddState(followState);
+    fsm->AddState(searchState);
 
     // UtilityAI //
     // Make a UtilityAI that evaluates between following or wandering.
@@ -217,16 +238,33 @@ int main(int argc, char* argv[])
 
     // BehaviourTree //
     // https://web.archive.org/web/20131209105717/http://www.altdevblogaday.com/2011/02/24/introduction-to-behavior-trees/ helped a lot understanding...
-    BehaviourTreeBehaviour* BHTree = new BehaviourTreeBehaviour({  });
+    BehaviourTreeBehaviour* BHTree = new BehaviourTreeBehaviour
+    ({
+        new BT_Selector
+        ({
+            new BT_Sequence
+            ({
+                new ConditionTargetClose(5, false), new ActionChase()
+            }),
+            new ActionWander()
+        })
+    });
+    //BehaviourTreeBehaviour* BHTree = new BehaviourTreeBehaviour(std::initializer_list<BT_Behaviour*> {new BT_Selector(std::initializer_list<BT_Behaviour*> })});
 
     //Agent agent3(&nodeMap, new SelectorBehaviour(new FollowerBehaviour(), new WanderBehaviour()));
-    //Agent agent3(&nodeMap, fsm);
+    Agent* agent3 = new Agent(&nodeMap, fsm, g_BlackBoard);
     //Agent agent3(&nodeMap, utilityAI);
-    Agent agent3(&nodeMap, BHTree);
-    agent3.SetNode(start);
-    agent3.SetSpeed(50);
-    agent3.SetTarget(&agent2);
+    //Agent agent3(&nodeMap, BHTree);
+    agent3->SetNode(start);
+    //agent3.SetSpeed(50);
+    agent3->SetTarget(agent1);
+    agent3->SetGuardPoints({ nodeMap.GetNode(9, 10), nodeMap.GetNode(5, 13), nodeMap.GetNode(5, 17), nodeMap.GetNode(21, 15)});
     //agent3.SetPos({ (float)GetScreenWidth() / 2, (float)GetScreenHeight() / 2 });
+
+    SoundSource* tsound = new SoundSource(5, 53, { 500, 500 }, SoundSource::SoundTypes::Steam);
+
+    g_GameManager->AddAgent({ agent1, agent2, agent3 });
+    g_GameManager->PlaySound(tsound);
 
     // Main game update loop
     while (!WindowShouldClose())    // Detect window close button or ESC key
@@ -264,11 +302,20 @@ int main(int argc, char* argv[])
         //agent2.Update(GetFrameTime());
         //agent3.Update(GetFrameTime());
 
-        agent1.Update(GetFrameTime());
-        agent2.Update(GetFrameTime());
-        agent3.Update(GetFrameTime());
+        //agent1.Update(GetFrameTime());
+        //agent2.Update(GetFrameTime());
+        //agent3.Update(GetFrameTime());
+
+        //tsound->Update(GetFrameTime());
 
         //agent1.SetPos(GetMousePosition());
+
+        if (IsMouseButtonPressed(MouseButton::MOUSE_RIGHT_BUTTON))
+        {
+            g_GameManager->PlaySound(new SoundSource(2, 500, GetMousePosition(), SoundSource::SoundTypes::Rock));    // Play a rock sound where the mouse is on right click
+        }
+
+        g_GameManager->Update(GetFrameTime());
 
         // Draw
         //----------------------------------------------------------------------------------
@@ -313,11 +360,15 @@ int main(int argc, char* argv[])
         //DrawText("A* Manhattan", 620, GetScreenHeight() - 40, 20, DARKGREEN);
 
 
-        agent1.Draw();
-        agent2.Draw();
-        agent3.Draw();
+        //agent1.Draw();
+        //agent2.Draw();
+        //agent3.Draw();
 
         Helper::DrawCross(GetMousePosition(), 10, 1, WHITE, true);
+
+        //tsound->Draw();
+
+        g_GameManager->Draw();
 
         EndDrawing();   // Display to window.
 

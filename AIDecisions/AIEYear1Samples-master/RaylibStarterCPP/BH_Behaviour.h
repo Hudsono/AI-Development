@@ -2,6 +2,7 @@
 
 // Tools.
 #include <vector>
+#include <raylib.h>
 
 // Forward declarations.
 class Agent;
@@ -14,6 +15,18 @@ enum class Status
 	Failure,	// Either Composite logic resulted false or a Condition resulted false.
 	Running		// An Action/Condition is running this frame; won't be done running this frame.
 };
+
+// Negation unary operator. Success returns Failure, vice-versa. Running and Ready are unaffected.
+//Status operator!(Status& _status)
+//{
+//	// Flip Success and Failure states, based on which is given.
+//	if (_status == Status::Success)
+//		_status = Status::Failure;
+//	else if (_status == Status::Failure)
+//		_status = Status::Success;
+//
+//	return _status;		// Return the new (or unchanged Running/Ready) state.
+//}
 
 // Base class for Behaviour Tree behaviours, needing special status updates. Separate from regular Behaviours for this purpose.
 class BT_Behaviour
@@ -51,14 +64,17 @@ public:
 };
 
 // AND node for running a list of behaviours consecutively until one fails.
-class BT_Sequence : BT_Composite
+class BT_Sequence : public BT_Composite
 {
 public:
+	using BT_Composite::BT_Composite;
 	virtual Status Update(Agent* agent, float deltaTime);	// Checks children until one doesn't report success.
 };
 
 // OR node for running a list of behaviours consecutively until one succeeds.
-class BT_Selector : BT_Composite
+class BT_Selector : public BT_Composite
 {
+public:
+	using BT_Composite::BT_Composite;
 	virtual Status Update(Agent* agent, float deltaTime);	// Checks children until one doesn't report failure.
 };

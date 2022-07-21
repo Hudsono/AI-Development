@@ -1,6 +1,7 @@
 #include "FiniteStateMachine.h"
 
 #include "Condition.h"
+#include <iostream>
 
 FiniteStateMachine::~FiniteStateMachine()
 {
@@ -13,12 +14,17 @@ void FiniteStateMachine::Update(Agent* agent, float deltaTime)
 {
 	//State* newState = nullptr;	// To store the new state, if applicable.
 
+	bool why = false;
+
 	// Check the current state's transitions.
 	for (State::Transition transition : m_currentState->GetTransitions())
 	{
 		// For the /first/ condition that's true, transition to its target state.
-		if (transition.condition->IsTrue(agent))
+		if (transition.condition->IsTrue(agent, deltaTime))
+		{
 			m_newState = transition.targetState;
+			why = true;
+		}
 	}
 
 	// If we've changed state, clean up the old one and initialise the new one.
@@ -28,6 +34,10 @@ void FiniteStateMachine::Update(Agent* agent, float deltaTime)
 		m_currentState = m_newState;	// Make new state the current state.
 		m_currentState->Enter(agent);	// Initialise the now-current state.
 		m_newState = nullptr;	// Reset new state data.
+	}
+	else if (why)
+	{
+		std::cout << "WRONG!" << std::endl;
 	}
 
 	// Update only the current state.

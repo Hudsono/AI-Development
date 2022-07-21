@@ -7,6 +7,11 @@
 // Tools
 #include "raymath.h"    // Distance calculation
 
+void GotoPointBehaviour::Enter(Agent* agent)
+{
+    agent->SetSpeed(100);
+}
+
 void GotoPointBehaviour::Update(Agent* agent, float deltaTime)
 {
     // Left-clicking an empty node will create an end point to path to.
@@ -19,8 +24,8 @@ void GotoPointBehaviour::Update(Agent* agent, float deltaTime)
 void WanderBehaviour::Enter(Agent* agent)
 {
     // Blue when wandering
-    agent->SetColour(BLUE);
-    agent->SetSpeed(50);
+    agent->SetColour(GREEN);
+    agent->SetSpeed(20);
 }
 
 void WanderBehaviour::Update(Agent* agent, float deltaTime)
@@ -45,7 +50,7 @@ void FollowerBehaviour::Enter(Agent* agent)
     // Red when following
     agent->SetColour(RED);
     agent->Reset();
-    agent->SetSpeed(60);
+    agent->SetSpeed(50);
 }
 
 void FollowerBehaviour::Update(Agent* agent, float deltaTime)
@@ -71,6 +76,18 @@ void FollowerBehaviour::Update(Agent* agent, float deltaTime)
             // Additional distance check to prevent constant path recalculation when close to the target (could path directly to target now).
             agent->GoTo(lastTargetPosition);
         }
+    }
+}
+
+void FollowerBehaviour::Exit(Agent* agent)
+{
+    // If a target exists as we just exited following, record its position as a point to search.
+
+    Agent* target = agent->GetTarget();
+
+    if (target)
+    {
+        agent->SetSearchPoint(target->GetPos());
     }
 }
 
@@ -147,4 +164,67 @@ void BehaviourTreeBehaviour::Update(Agent* agent, float deltaTime)
     // Check/Update all the BT behaviours.
     for (BT_Behaviour* BTBehaviour : m_BTbehaviours)
         BTBehaviour->Check(agent, deltaTime);
+}
+
+void GuardBehaviour::Enter(Agent* agent)
+{
+    // Guard turns blue and walks slowly when guarding...
+    agent->SetColour(BLUE);
+    agent->SetSpeed(25);
+
+    // Make sure we have guard points to use. If not, automatically save agent's current location as its sole guard point.
+    if (agent->GetGuardPoints().empty())
+    {
+        agent->SetGuardPoints({ agent->GetNodeMap()->GetClosestNode(agent->GetPos()) });    // Adds the node closest to the agent's position as its single guard point for now.
+    }
+
+    // Clear any existing path so that it may immediately return to whatever was its last guard destination.
+    agent->Reset();
+}
+
+void GuardBehaviour::Update(Agent* agent, float deltaTime)
+{
+    // Sets agent to guard its given guard points. Patrols if multiple guard points are defined.
+    // First, check there are any points /to/ guard.
+    if (agent->GetGuardPoints().empty())
+        return; // If so, break out now.
+
+    // Check if we're done pathing yet...
+    if (agent->PathComplete())
+        agent->GoTo(agent->GetNodeMap()->NodeWPos(agent->IncPatrolPath()));    // Path to the next available patrol destination.
+}
+
+void SearchBehaviour::Enter(Agent* agent)
+{
+    // Guard turns orange when searching, but retains the speed it was running at before...
+    agent->SetColour(ORANGE);
+}
+
+void SearchBehaviour::Update(Agent* agent, float deltaTime)
+{
+    // Guard picks random points to walk to, based around the search point.
+    
+    // Check if we're done pathing yet...
+    if (agent->PathComplete())
+    {
+        // Randomised X and Y numbers in world coordinates...
+        int randPointX = rand() % 200 + (-100);    // Random int between -100 and 100.
+        int randPointY = rand() % 200 + (-100);    // Random int between -100 and 100.
+
+
+        // Pick a random coordinate based on the search point, offset by the random amount.
+        Node* searchNode = agent->GetNodeMap()->GetClosestNode({ agent->GetSearchPoint().x + randPointX, agent->GetSearchPoint().y + randPointY });
+
+        // If that node was valid, go to it.
+        if (searchNode)
+            agent->GoTo(agent->GetNodeMap()->NodeWPos(searchNode));
+    }
+}
+
+void AttackBehaviour::Enter(Agent* agent)
+{
+}
+
+void AttackBehaviour::Update(Agent* agent, float deltaTime)
+{
 }

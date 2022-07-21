@@ -170,13 +170,17 @@
     <ClCompile Include="Behaviour.cpp" />
     <ClCompile Include="Agent.cpp" />
     <ClCompile Include="BH_Behaviour.cpp" />
+    <ClCompile Include="Blackboard.cpp" />
     <ClCompile Include="BT_BehaviourCustoms.cpp" />
     <ClCompile Include="Condition.cpp" />
     <ClCompile Include="DecisionTree.cpp" />
     <ClCompile Include="FiniteStateMachine.cpp" />
+    <ClCompile Include="GameManager.cpp" />
+    <ClCompile Include="Guard.cpp" />
     <ClCompile Include="Helper.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Pathfinding.cpp" />
+    <ClCompile Include="SoundEmitter.cpp" />
     <ClCompile Include="State.cpp" />
     <ClCompile Include="UtilityAI.cpp" />
   </ItemGroup>
@@ -184,12 +188,16 @@
     <ClInclude Include="Behaviour.h" />
     <ClInclude Include="Agent.h" />
     <ClInclude Include="BH_Behaviour.h" />
+    <ClInclude Include="Blackboard.h" />
     <ClInclude Include="BT_BehaviourCustoms.h" />
     <ClInclude Include="Condition.h" />
     <ClInclude Include="DecisionTree.h" />
     <ClInclude Include="FiniteStateMachine.h" />
+    <ClInclude Include="GameManager.h" />
+    <ClInclude Include="Guard.h" />
     <ClInclude Include="Helper.h" />
     <ClInclude Include="Pathfinding.h" />
+    <ClInclude Include="SoundEmitter.h" />
     <ClInclude Include="State.h" />
     <ClInclude Include="UtilityAI.h" />
   </ItemGroup>

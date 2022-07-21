@@ -2,6 +2,7 @@
 
 // Forward declarations.
 #include "Behaviour.h"
+#include "Condition.h"
 
 struct Transition;
 
@@ -39,6 +40,10 @@ void State::Enter(Agent* agent)
 	// Call Enter functions for all behaviours in this state.
 	for (Behaviour* behaviour : m_behaviours)
 		behaviour->Enter(agent);
+
+	// Call Enter functions for all transitions in this state (resetting timers).
+	for (Transition transition : m_transitions)
+		transition.condition->Enter(agent);
 }
 
 void State::Update(Agent* agent, float deltaTime)

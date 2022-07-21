@@ -559,6 +559,8 @@ PathAgent::PathAgent(Algorithms algorithm, Heuristics heuristic, NodeMap* nodeMa
 	SetHeuristic(heuristic);
 	SetMap(nodeMap);
 	SetPosition(position);
+
+	SetSpeed(50);	// Default speed.
 }
 
 void PathAgent::Update(float deltaTime)
