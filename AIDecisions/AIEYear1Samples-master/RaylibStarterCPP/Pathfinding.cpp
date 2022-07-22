@@ -225,7 +225,7 @@ void NodeMap::DrawPath(std::vector<Node*> nodeMapPath, Color lineColour)
 		double rotation = atan2f((nodeMapPath[1]->position.y + 0.5f) * m_cellSize - (nodeMapPath.front()->position.y + 0.5f) * m_cellSize, (nodeMapPath[1]->position.x + 0.5f) * m_cellSize - (nodeMapPath.front()->position.x + 0.5f) * m_cellSize) * RAD2DEG;
 
 		// Draw a triangle on the start of the path, pointing at the second node.
-		DrawPoly({ (nodeMapPath.front()->position.x + 0.5f) * m_cellSize, (nodeMapPath.front()->position.y + 0.5f) * m_cellSize }, 3, 8, rotation + 33, lineColour);
+		DrawPolyLines({ (nodeMapPath.front()->position.x + 0.5f) * m_cellSize, (nodeMapPath.front()->position.y + 0.5f) * m_cellSize }, 3, 8, rotation + 33, lineColour);
 	}
 }
 

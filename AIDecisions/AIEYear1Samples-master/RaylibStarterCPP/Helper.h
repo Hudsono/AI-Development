@@ -16,5 +16,8 @@ public:
 
 	// 
 	static int GetRouletteIndex(std::vector<float> weights);
+
+	// Compares two given vectors, returns true if their relative values are identical.
+	static bool SameVector(Vector2 _one, Vector2 _two);
 };
 

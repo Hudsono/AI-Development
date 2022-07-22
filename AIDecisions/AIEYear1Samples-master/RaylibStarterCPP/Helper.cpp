@@ -36,3 +36,8 @@ int Helper::GetRouletteIndex(std::vector<float> weights)
 			return i;
 	}
 }
+
+bool Helper::SameVector(Vector2 _one, Vector2 _two)
+{
+	return (_one.x == _two.x && _one.y == _two.y);	// Return true if relative values are identical.
+}

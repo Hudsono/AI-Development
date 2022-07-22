@@ -6,6 +6,7 @@
 // Forward declarations.
 class Behaviour;
 class BlackBoard;
+class SoundSource;
 
 // Structure to hold data about looking at things.
 struct ViewTarget
@@ -19,7 +20,7 @@ struct ViewTarget
 class Agent
 {
 public:
-	Agent() {}	// Base constructor.
+	//Agent() {}	// Base constructor.
 
 	// Constructor to assign a node map, starting behaviour and blackboard.
 	Agent(NodeMap* _nodeMap, Behaviour* _behaviour, BlackBoard* _blackBoard);// : m_current(_behaviour), m_nodeMap(_nodeMap), m_colour({ 255, 255, 0, 255 }) { m_pathAgent.SetMap(_nodeMap); if (_behaviour2) {} m_current->Enter(this); }
@@ -74,6 +75,8 @@ public:
 
 
 	void AddViewTarget(Vector2 _viewTarget);	// Add somewhere to look at.
+	std::vector<SoundSource*> GetSusSounds() { return m_susSounds; }	// Gets the sounds this agent is suspicious of.
+	void AddSusSound(SoundSource* _sound) { m_susSounds.push_back(_sound); }	// Add a new sound to list of heard sounds.
 
 private:
 	PathAgent m_pathAgent;	// The current path agent this agent is assigned to.
@@ -83,12 +86,15 @@ private:
 
 	float m_rotation;	// The angle this agent is facing.
 	Vector2 m_viewTarget;	// Where this agent is looking.
+	Vector2 m_forward;	// The normal pointing in the direction this agent is moving.
 
 	Agent* m_target;	// Multi-purpose pointer target to another agent.
 
 	std::vector<Node*> m_patrolPoints;	// Sets this agent to patrol the given points when idling. One defined point is guarded; several are patrolled through.
 	int m_patrolProgress;	// At what index of patrol points we're currently at.
 	Vector2 m_searchPoint;	// The last point of suspicioun for the agent: either the last time they saw their target, or the source of a sound.
+
+	std::vector<SoundSource*> m_susSounds;	// List of pointers to sounds the guard has found suspicious. Prevents guard from repeatedly being suspicious of the same sound(s).
 
 	BlackBoard* m_blackBoard;	// The blackboard this agent will review.
 };

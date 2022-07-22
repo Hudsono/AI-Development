@@ -213,6 +213,11 @@ int main(int argc, char* argv[])
     TimeCondition* after5 = new TimeCondition(20.0f);
     SoundCondition* hearSound = new SoundCondition(g_GameManager->GetSounds());
 
+    DistanceCondition* closerThan51 = new DistanceCondition(5.0f * nodeMap.CellSize(), true);
+    DistanceCondition* furtherThan71 = new DistanceCondition(7.0f * nodeMap.CellSize(), false);
+    TimeCondition* after51 = new TimeCondition(20.0f);
+    SoundCondition* hearSound1 = new SoundCondition(g_GameManager->GetSounds());
+
     // Register these states with the FSM, so it's responsible for deleting them now
     State* guardState = new State(new GuardBehaviour());
     State* followState = new State(new FollowerBehaviour());
@@ -224,11 +229,26 @@ int main(int argc, char* argv[])
     guardState->AddTransition(hearSound, searchState);  // If the guard hears a sound, start searching it.
     searchState->AddTransition(hearSound, searchState); // If the guard hears a sound while searching, start a new search.
 
+    State* guardState1 = new State(new GuardBehaviour());
+    State* followState1 = new State(new FollowerBehaviour());
+    State* searchState1 = new State(new SearchBehaviour());
+    guardState1->AddTransition(closerThan51, followState1);    // If target gets close, chase it.
+    followState1->AddTransition(furtherThan71, searchState1);  // If target gets too far, start searching.
+    searchState1->AddTransition(after51, guardState1);         // After 5 seconds of not seeing the target, go back to guarding
+    searchState1->AddTransition(closerThan51, followState1);   // If target gets close, go back to chasing.
+    guardState1->AddTransition(hearSound1, searchState1);  // If the guard hears a sound, start searching it.
+    searchState1->AddTransition(hearSound1, searchState1); // If the guard hears a sound while searching, start a new search.
+
     // Make a FSM that starts off wandering.
     FiniteStateMachine* fsm = new FiniteStateMachine(guardState);
     fsm->AddState(guardState);
     fsm->AddState(followState);
     fsm->AddState(searchState);
+
+    FiniteStateMachine* fsm1 = new FiniteStateMachine(guardState1);
+    fsm1->AddState(guardState1);
+    fsm1->AddState(followState1);
+    fsm1->AddState(searchState1);
 
     // UtilityAI //
     // Make a UtilityAI that evaluates between following or wandering.
@@ -261,9 +281,13 @@ int main(int argc, char* argv[])
     agent3->SetGuardPoints({ nodeMap.GetNode(9, 10), nodeMap.GetNode(5, 13), nodeMap.GetNode(5, 17), nodeMap.GetNode(21, 15)});
     //agent3.SetPos({ (float)GetScreenWidth() / 2, (float)GetScreenHeight() / 2 });
 
+    Agent* agent4 = new Agent(&nodeMap, fsm1, g_BlackBoard);
+    agent4->SetTarget(agent1);
+    agent4->SetGuardPoints({ nodeMap.GetNode(3, 22), nodeMap.GetNode(27, 22) });
+
     SoundSource* tsound = new SoundSource(5, 53, { 500, 500 }, SoundSource::SoundTypes::Steam);
 
-    g_GameManager->AddAgent({ agent1, agent2, agent3 });
+    g_GameManager->AddAgent({ agent1, agent3, agent4 });
     g_GameManager->PlaySound(tsound);
 
     // Main game update loop

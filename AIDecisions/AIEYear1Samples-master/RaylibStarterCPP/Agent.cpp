@@ -4,6 +4,12 @@
 #include "Behaviour.h"
 #include "Blackboard.h"
 
+// Tools.
+#include "raymath.h"
+#include "Helper.h"
+
+#include "SoundEmitter.h"
+
 Agent::Agent(NodeMap* _nodeMap, Behaviour* _behaviour, BlackBoard* _blackBoard)
 {
 	// Initialise variables.
@@ -21,6 +27,8 @@ Agent::Agent(NodeMap* _nodeMap, Behaviour* _behaviour, BlackBoard* _blackBoard)
 
 void Agent::Update(float deltaTime)
 {
+	Vector2 positionPrev = m_pathAgent.GetPosition();	// Save the agent's position before moving it, so we can use it for calculations later.
+
 	// Update the current behaviour, if there is one.
 	if (m_current)
 		m_current->Update(this, deltaTime);
@@ -28,7 +36,27 @@ void Agent::Update(float deltaTime)
 	// Update the assigned path agent.
 	m_pathAgent.Update(deltaTime);
 
+	// Update the forward direction. Based on the agent's previous movement.
+	if (!Helper::SameVector(positionPrev, m_pathAgent.GetPosition()))
+		m_forward = (Vector2Subtract(m_pathAgent.GetPosition(), positionPrev));
+
+	m_rotation = Vector2Angle(m_pathAgent.GetPosition(), Vector2Add(m_pathAgent.GetPosition(), m_forward));
+
+	//std::cout << m_rotation << std::endl;
+	//m_forward = Vector2Angle(positionPrev, m_pathAgent.GetPosition());
+
 	// Turn to face the view target smoothly. Less smooth/snappier if more suspicious.
+
+	// Remove any old sounds from heard list
+	for (int i = 0; i < GetSusSounds().size(); i++)
+	{
+		SoundSource* sound = GetSusSounds()[i];
+		if (sound->DonePlaying())
+		{
+			std::swap(GetSusSounds()[i], GetSusSounds().back());	// Put this sound at the back of the list...
+			GetSusSounds().pop_back();	// ...then delete the last elemenet.
+		}
+	}
 
 }
 
@@ -38,10 +66,15 @@ void Agent::Draw()
 	m_nodeMap->DrawPath(m_pathAgent.GetPath(), m_colour);	// Draw the path of this agent.
 
 	// The agent's FOV. Used to visually detect objects, like the player.
-	DrawCircleSectorLines(m_pathAgent.GetPosition(), 200, 10, 170, 1, RED);
+	int rot1 = -m_rotation + 10;
+	int rot2 = -m_rotation + 170;
+
+	DrawCircleSectorLines(GetPos(), 200, rot2, rot1, 1, RED);
 
 	// Draw a triangle to represent the agent
-	DrawPoly(m_pathAgent.GetPosition(), 3, 10, m_rotation + 33, m_colour);
+	DrawPoly(GetPos(), 3, 10, m_rotation + 33, m_colour);
+
+	DrawLineEx(m_pathAgent.GetPosition(), Vector2Add(m_pathAgent.GetPosition(), m_forward), 7, PINK);
 }
 
 void Agent::GoTo(Vector2 point)

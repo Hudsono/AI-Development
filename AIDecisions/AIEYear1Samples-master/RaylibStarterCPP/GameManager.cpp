@@ -7,9 +7,9 @@
 void GameManager::Update(float deltaTime)
 {
 	// Update all agents
-	for (Agent* agent : AllAgents)
+	for (int i = 0; i < AllAgents.size(); i++)
 	{
-		agent->Update(deltaTime);
+		AllAgents[i]->Update(deltaTime);
 	}
 
 	// Update all sounds

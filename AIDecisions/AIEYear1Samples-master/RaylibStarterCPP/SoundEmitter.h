@@ -1,6 +1,8 @@
 #pragma once
 
+// Tools
 #include "raylib.h"
+#include <iostream>
 
 // Class to emulate noise which can alert AI Agents.
 class SoundSource
@@ -26,11 +28,14 @@ private:
 	Vector2 m_location;	// Where the sound is coming from.
 	SoundTypes m_soundType;	// The type of sound this is.
 
+	static int AllIds;
+
 public:
 	
-	SoundSource() {}	// Default constructor
+	int m_id;
+	//SoundSource() {}	// Default constructor
 	// Constructor; initialises the sound's properties.
-	SoundSource(float _duration, float _volume, Vector2 _location, SoundTypes _soundType) : m_duration(_duration), m_volume(_volume), m_location(_location), m_durationMax(_duration), m_soundType(_soundType) {}
+	SoundSource(float _duration, float _volume, Vector2 _location, SoundTypes _soundType) : m_duration(_duration), m_volume(_volume), m_location(_location), m_durationMax(_duration), m_soundType(_soundType) { m_id = ++AllIds; std::cout << "sound id = " << m_id << std::endl; }
 	~SoundSource() {}	// Destructor.
 	
 	void Update(float deltaTime);	// Update the sound's duration and visual effect.
@@ -40,5 +45,7 @@ public:
 	bool DonePlaying() { return m_duration <= 0; }	// True if we've finished playing this sound.
 	float GetVolume() { return m_volume; }	// Gets the volume of this sound; the radius.
 	Vector2 GetLocation() { return m_location; } // Gets the location source of this sound.
+
+	bool operator==(const SoundSource& _other);
 };
 

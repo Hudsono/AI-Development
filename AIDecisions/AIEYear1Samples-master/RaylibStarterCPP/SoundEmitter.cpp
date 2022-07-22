@@ -1,5 +1,8 @@
 #include "SoundEmitter.h"
 
+// Static variables.
+int SoundSource::AllIds;
+
 void SoundSource::Update(float deltaTime)
 {
 	m_duration -= 1 * deltaTime;	// Count down the sound's duration.
@@ -9,6 +12,9 @@ void SoundSource::Draw()
 {
 	// Draw the full radius of the sound as a circle.
 	DrawCircleLines(m_location.x, m_location.y, m_volume, WHITE);
+	
+	// Draw a semicircle that fills up as the sound completes playing--basically a timer visualisation.
+	DrawCircleSectorLines(m_location, m_volume * 0.9f, 180, 180 + ((m_duration - m_durationMax) /  m_durationMax) * 360, 1, BEIGE);
 
 	// Draw 3 grey circles rippling from the centre to illustrate sound waves.
 	for (int i = 0; i < 3; i++)
@@ -22,4 +28,9 @@ void SoundSource::Draw()
 		int rippleRadius = ((int)((m_duration * m_volume) - (m_durationMax * m_volume)) + (i*ripInterval)) % (int)(m_volume);
 		DrawCircleLines(m_location.x, m_location.y, rippleRadius, GRAY);
 	}
+}
+
+bool SoundSource::operator==(const SoundSource& _other)
+{
+	return (m_id == _other.m_id);
 }

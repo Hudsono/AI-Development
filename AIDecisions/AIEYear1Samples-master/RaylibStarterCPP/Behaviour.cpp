@@ -15,9 +15,37 @@ void GotoPointBehaviour::Enter(Agent* agent)
 void GotoPointBehaviour::Update(Agent* agent, float deltaTime)
 {
     // Left-clicking an empty node will create an end point to path to.
-    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && !IsKeyDown(KEY_LEFT_SHIFT))
     {
         agent->GoTo(GetMousePosition()); // Tell agent to pathfind to the given end point (mouse position).
+    }
+    else if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && IsKeyDown(KEY_LEFT_SHIFT))
+    {
+        agent->SetPos(GetMousePosition());  // Teleport the player to the mouse position.
+    }
+
+    if (IsKeyDown(KEY_A))
+        agent->SetPos({ agent->GetPos().x - 1, agent->GetPos().y });
+
+    if (IsKeyDown(KEY_D))
+        agent->SetPos({ agent->GetPos().x + 1, agent->GetPos().y });
+
+    if (IsKeyDown(KEY_W))
+        agent->SetPos({ agent->GetPos().x, agent->GetPos().y - 1 });
+
+    if (IsKeyDown(KEY_S))
+        agent->SetPos({ agent->GetPos().x, agent->GetPos().y + 1 });
+
+    if (IsMouseButtonDown(MOUSE_MIDDLE_BUTTON))
+    {
+        Vector2 mouse = GetMousePosition();
+        Vector2 direction = Vector2Subtract(mouse, agent->GetPos());
+
+        Vector2 acc = direction;
+
+        acc = (Vector2Scale(Vector2Normalize(direction), 0.1f));
+
+        agent->SetPos(Vector2Add(agent->GetPos(), acc));
     }
 }
 
